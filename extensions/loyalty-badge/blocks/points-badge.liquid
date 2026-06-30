@@ -1,0 +1,27 @@
+{% schema %}
+{
+  "name": "Loyalty Points Badge",
+  "target": "section",
+  "stylesheet": "loyalty-badge.css",
+  "javascript": "loyalty-badge.js",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "在商品页展示「购买可得 X 积分」。仅读取 Shop Metafield，不监听购物车。"
+    }
+  ]
+}
+{% endschema %}
+
+<div
+  class="lp-badge"
+  data-lp-badge
+  data-price="{{ product.selected_or_first_available_variant.price | divided_by: 100.0 }}"
+  style="--lp-accent: {{ shop.metafields.app.loyalty_pulse.value.accentColor | default: '#7C3AED' }}"
+>
+  <span class="lp-badge__label" data-lp-label>加载积分信息…</span>
+</div>
+
+<script type="application/json" id="lp-config-json">
+  {{ shop.metafields.app.loyalty_pulse.value | json }}
+</script>

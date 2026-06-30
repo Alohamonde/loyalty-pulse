@@ -1,0 +1,14 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "Loyalty Hub"
+handle = "loyalty-hub"
+type = "ui_extension"
+
+  [[extensions.targeting]]
+  module = "./src/LoyaltyPage.jsx"
+  target = "customer-account.page.render"
+
+  [extensions.capabilities]
+  api_access = true
+  network_access = true

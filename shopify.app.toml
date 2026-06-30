@@ -1,0 +1,58 @@
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "Loyalty Pulse"
+client_id = ""
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
+
+[access_scopes]
+scopes = "read_products,read_customers,write_customers,read_orders,write_discounts,read_discounts"
+
+[shop.metafields.app.loyalty_pulse]
+type = "json"
+name = "Loyalty Pulse Config"
+description = "Storefront earn rules, rewards catalog, and VIP tier thresholds"
+
+  [shop.metafields.app.loyalty_pulse.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"
+
+[customer.metafields.app.loyalty_tier]
+type = "json"
+name = "Loyalty VIP Tier"
+description = "Customer VIP tier name and earn multiplier"
+
+  [customer.metafields.app.loyalty_tier.access]
+  admin = "merchant_read_write"
+  customer_account = "read"
+
+[app_proxy]
+url = "/apps/loyalty-pulse"
+subpath = "loyalty-pulse"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-04"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/paid"]
+  uri = "/webhooks/orders/paid"
+
+  [[webhooks.subscriptions]]
+  topics = ["customers/create"]
+  uri = "/webhooks/customers/create"
+
+[auth]
+redirect_urls = ["https://shopify.dev/apps/default-app-home/api/auth"]

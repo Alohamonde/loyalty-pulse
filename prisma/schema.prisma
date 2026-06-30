@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model ShopSettings {
+  id                 String    @id @default(cuid())
+  shop               String    @unique
+  enabled            Boolean   @default(true)
+  pointsName         String    @default("积分")
+  pointsPerCurrency  Float     @default(10)
+  onboardingComplete Boolean   @default(false)
+  accentColor        String    @default("#7C3AED")
+  referralEnabled    Boolean   @default(true)
+  referrerPoints     Int       @default(500)
+  refereePoints      Int       @default(200)
+  bonusMultiplier    Float     @default(1)
+  bonusEndsAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model EarnRule {
+  id          String   @id @default(cuid())
+  shop        String
+  type        String
+  enabled     Boolean  @default(true)
+  points      Int      @default(0)
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([shop, type])
+  @@index([shop])
+}
+
+model Reward {
+  id            String   @id @default(cuid())
+  shop          String
+  enabled       Boolean  @default(true)
+  name          String
+  type          String
+  pointsCost    Int
+  discountValue Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([shop])
+}
+
+model VipTier {
+  id             String   @id @default(cuid())
+  shop           String
+  name           String
+  threshold      Int
+  earnMultiplier Float    @default(1)
+  sortOrder      Int      @default(0)
+  perks          String   @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([shop])
+}
+
+model LoyaltyMember {
+  id                 String             @id @default(cuid())
+  shop               String
+  customerId         String
+  email              String             @default("")
+  pointsBalance      Int                @default(0)
+  lifetimePoints     Int                @default(0)
+  tierId             String?
+  referralCode       String             @unique
+  referredByMemberId String?
+  birthdayMonth      Int?
+  birthdayDay        Int?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  transactions       PointTransaction[]
+
+  @@unique([shop, customerId])
+  @@index([shop])
+}
+
+model PointTransaction {
+  id             String        @id @default(cuid())
+  memberId       String
+  shop           String
+  type           String
+  delta          Int
+  balanceAfter   Int
+  source         String
+  earnRuleId     String?
+  rewardId       String?
+  orderId        String?
+  note           String        @default("")
+  idempotencyKey String?       @unique
+  createdAt      DateTime      @default(now())
+  member         LoyaltyMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([shop, orderId])
+}
+
+model ReferralEvent {
+  id               String   @id @default(cuid())
+  shop             String
+  referrerMemberId String
+  refereeMemberId  String
+  orderId          String?
+  referrerPoints   Int
+  refereePoints    Int
+  status           String   @default("completed")
+  createdAt        DateTime @default(now())
+
+  @@index([shop])
+}
+
+model LoyaltyEvent {
+  id        String   @id @default(cuid())
+  shop      String
+  eventType String
+  memberId  String?
+  createdAt DateTime @default(now())
+
+  @@index([shop, eventType])
+}
